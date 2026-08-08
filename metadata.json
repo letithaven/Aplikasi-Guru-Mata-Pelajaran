@@ -1,0 +1,6 @@
+{
+  "name": "Digitalisasi Data oleh Guru - MAN 2 Seram Bagian Timur",
+  "description": "Aplikasi Manajemen Kelas, Presensi Siswa, Penilaian Akademik, dan Jurnal Mengajar Guru MAN 2 Seram Bagian Timur.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
