@@ -141,7 +141,7 @@
               </div>
               <i class="fa-solid fa-chevron-down menu-chevron" :class="{ open: openMasterDataMenu }"></i>
             </a>
-            <ul class="submenu-list" v-show="openMasterDataMenu || sidebarCollapsed">
+            <ul class="submenu-list" v-show="openMasterDataMenu">
               <li class="submenu-item" :class="{ active: currentTab === 'classes' }">
                 <a class="submenu-link" @click="currentTab = 'classes'; mobileMenuOpen = false;" title="Kelas & Mapel">
                   <i class="fa-solid fa-layer-group"></i>
@@ -166,7 +166,7 @@
               </div>
               <i class="fa-solid fa-chevron-down menu-chevron" :class="{ open: openPresensiMenu }"></i>
             </a>
-            <ul class="submenu-list" v-show="openPresensiMenu || sidebarCollapsed">
+            <ul class="submenu-list" v-show="openPresensiMenu">
               <li class="submenu-item" :class="{ active: currentTab === 'attendance' && attMode === 'daily' }">
                 <a class="submenu-link" @click="currentTab = 'attendance'; attMode = 'daily'; mobileMenuOpen = false;" title="Presensi Harian">
                   <i class="fa-solid fa-pen-to-square"></i>
@@ -459,7 +459,7 @@
             <div class="mb-4" v-if="selectedClassId">
               <h5 class="fw-bold text-light mb-3"><i class="fa-solid fa-bolt text-warning me-2"></i>Pintasan Akses Cepat</h5>
               <div class="row g-3 align-items-stretch">
-                <div class="col-6 col-md-3">
+                <div class="col-12 col-sm-6 col-md-3">
                   <div class="quick-action-card h-100" @click="currentTab = 'attendance'; attMode = 'daily';">
                     <div class="quick-action-icon qa-icon-cyan">
                       <i class="fa-solid fa-pen-to-square"></i>
@@ -470,7 +470,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-6 col-md-3">
+                <div class="col-12 col-sm-6 col-md-3">
                   <div class="quick-action-card h-100" @click="currentTab = 'attendance'; attMode = 'recap'; loadMonthlyRecapData();">
                     <div class="quick-action-icon qa-icon-blue">
                       <i class="fa-solid fa-table-cells"></i>
@@ -481,7 +481,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-6 col-md-3">
+                <div class="col-12 col-sm-6 col-md-3">
                   <div class="quick-action-card h-100" @click="currentTab = 'grades'; loadGradesData();">
                     <div class="quick-action-icon qa-icon-warning">
                       <i class="fa-solid fa-award"></i>
@@ -492,7 +492,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-6 col-md-3">
+                <div class="col-12 col-sm-6 col-md-3">
                   <div class="quick-action-card h-100" @click="currentTab = 'journal'">
                     <div class="quick-action-icon qa-icon-success">
                       <i class="fa-solid fa-book-open-reader"></i>
@@ -527,7 +527,7 @@
                         </thead>
                         <tbody>
                           <tr v-for="j in journals.filter(j => j.class_id === selectedClassId).slice(0, 4)" :key="j.id">
-                            <td><span class="badge bg-secondary bg-opacity-30 text-info border border-info border-opacity-20">{{ j.date }}</span></td>
+                            <td><span class="badge bg-secondary bg-opacity-30 text-info border border-info border-opacity-20">{{ formatDisplayDate(j.date) }}</span></td>
                             <td class="fw-semibold text-light">{{ getSubjectName(j.subject_id) }}</td>
                             <td>
                               <div class="fw-medium text-light">{{ j.topic }}</div>
@@ -633,8 +633,9 @@
                               <input type="checkbox" class="form-check-input cursor-pointer" :value="c.id" v-model="selectedClassIds">
                             </td>
                             <td class="fw-bold text-light">{{ c.name }}</td>
-                            <td v-if="!isReadOnlyUser" class="text-end">
-                              <button class="btn btn-sm btn-outline-danger" @click="deleteClass(c.id)" :disabled="isDbProcessing"><i class="fa-solid fa-trash"></i></button>
+                            <td v-if="!isReadOnlyUser" class="text-end text-nowrap">
+                              <button class="btn btn-sm btn-outline-info me-1" @click="editClass(c)" :disabled="isDbProcessing" title="Edit Nama Kelas"><i class="fa-solid fa-pen"></i></button>
+                              <button class="btn btn-sm btn-outline-danger" @click="deleteClass(c.id)" :disabled="isDbProcessing" title="Hapus Kelas"><i class="fa-solid fa-trash"></i></button>
                             </td>
                           </tr>
                           <tr v-if="classes.length === 0">
@@ -684,8 +685,9 @@
                               <input type="checkbox" class="form-check-input cursor-pointer" :value="sub.id" v-model="selectedSubjectIds">
                             </td>
                             <td class="fw-bold text-light">{{ sub.name }}</td>
-                            <td v-if="!isReadOnlyUser" class="text-end">
-                              <button class="btn btn-sm btn-outline-danger" @click="deleteSubject(sub.id)" :disabled="isDbProcessing"><i class="fa-solid fa-trash"></i></button>
+                            <td v-if="!isReadOnlyUser" class="text-end text-nowrap">
+                              <button class="btn btn-sm btn-outline-info me-1" @click="editSubject(sub)" :disabled="isDbProcessing" title="Edit Mapel"><i class="fa-solid fa-pen"></i></button>
+                              <button class="btn btn-sm btn-outline-danger" @click="deleteSubject(sub.id)" :disabled="isDbProcessing" title="Hapus Mapel"><i class="fa-solid fa-trash"></i></button>
                             </td>
                           </tr>
                           <tr v-if="subjects.length === 0">
@@ -1172,11 +1174,21 @@
                         <label class="form-label">Aktivitas & Catatan KBM</label>
                         <textarea class="form-control" rows="2" v-model="journalForm.activities" placeholder="Catatan jalannya pembelajaran..." required></textarea>
                       </div>
-                      <div class="col-md-12 text-end">
-                        <button type="submit" class="btn btn-cyber px-4" :disabled="isDbProcessing">
-                          <i class="fa-solid" :class="isDbProcessing ? 'fa-circle-notch fa-spin me-1' : 'fa-floppy-disk me-1'"></i> 
-                          {{ isDbProcessing ? 'Menyimpan...' : 'Simpan Jurnal' }}
-                        </button>
+                      <div class="col-md-12 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div>
+                          <span v-if="journalForm.id" class="badge bg-warning text-dark fw-bold px-2 py-1">
+                            <i class="fa-solid fa-pen me-1"></i> Mode Edit Jurnal
+                          </span>
+                        </div>
+                        <div class="d-flex gap-2 ms-auto">
+                          <button v-if="journalForm.id" type="button" class="btn btn-outline-secondary btn-sm" @click="resetJournalForm">
+                            <i class="fa-solid fa-xmark me-1"></i> Batal Edit
+                          </button>
+                          <button type="submit" class="btn btn-cyber px-4" :disabled="isDbProcessing">
+                            <i class="fa-solid" :class="isDbProcessing ? 'fa-circle-notch fa-spin me-1' : 'fa-floppy-disk me-1'"></i> 
+                            {{ isDbProcessing ? 'Menyimpan...' : (journalForm.id ? 'Perbarui Jurnal' : 'Simpan Jurnal') }}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </form>
@@ -1214,8 +1226,9 @@
                           <td class="fw-semibold text-light">{{ getSubjectName(j.subject_id) }}</td>
                           <td class="text-light">{{ j.topic }}</td>
                           <td><small class="text-muted">{{ j.activities }}</small></td>
-                          <td v-if="!isReadOnlyUser" class="text-end">
-                            <button class="btn btn-sm btn-outline-danger" @click="deleteJournal(j.id)"><i class="fa-solid fa-trash"></i></button>
+                          <td v-if="!isReadOnlyUser" class="text-end text-nowrap">
+                            <button class="btn btn-sm btn-outline-info me-1" @click="editJournal(j)" title="Edit Jurnal"><i class="fa-solid fa-pen"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" @click="deleteJournal(j.id)" title="Hapus Jurnal"><i class="fa-solid fa-trash"></i></button>
                           </td>
                         </tr>
                         <tr v-if="journals.filter(item => item.class_id === selectedClassId).length === 0">
@@ -1717,7 +1730,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import Swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
 
@@ -1755,6 +1768,14 @@ const toggleProfileDropdown = () => {
 const authTab = ref<string>('login');
 const sidebarCollapsed = ref<boolean>(localStorage.getItem('digitalisasi_sidebar_collapsed') === 'true');
 const mobileMenuOpen = ref<boolean>(false);
+
+watch(mobileMenuOpen, (isOpen) => {
+  if (isOpen) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = '';
+  }
+});
 
 const loading = ref<boolean>(false);
 const loadingProgress = ref<number>(0);
@@ -2561,6 +2582,31 @@ const addClass = async () => {
   triggerFuturisticToast('Kelas Ditambahkan 🏫', `Kelas ${nameToCreate} berhasil dibuat di database.`, 'fa-solid fa-school text-success');
 };
 
+const editClass = async (cls: any) => {
+  if (isReadOnlyUser.value) return;
+  const { value: newName } = await Swal.fire({
+    title: 'Edit Nama Kelas',
+    input: 'text',
+    inputLabel: 'Nama Kelas Baru',
+    inputValue: cls.name,
+    showCancelButton: true,
+    confirmButtonText: 'Simpan Perubahan',
+    cancelButtonText: 'Batal',
+    inputValidator: (value) => {
+      if (!value) return 'Nama kelas tidak boleh kosong!';
+    }
+  });
+
+  if (newName && newName !== cls.name) {
+    await runDatabaseSyncProcess(`Memperbarui Nama Kelas (${newName})...`, async () => {
+      await apiRequest('updateClass', { id: cls.id, name: newName }, true);
+      cls.name = newName;
+      classes.value.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+    });
+    triggerFuturisticToast('Kelas Diperbarui 🏫', `Nama kelas berhasil diubah menjadi ${newName}.`, 'fa-solid fa-school text-success');
+  }
+};
+
 const deleteClass = async (id: string) => {
   if (isReadOnlyUser.value) return;
   const conf = await Swal.fire({ title: 'Hapus Kelas?', text: 'Semua data siswa & presensi kelas ini akan terhapus.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444' });
@@ -2611,6 +2657,31 @@ const addSubject = async () => {
     if (!selectedSubjectId.value) selectedSubjectId.value = res.id;
   });
   triggerFuturisticToast('Mapel Ditambahkan 📚', `Mata pelajaran ${subName} berhasil dibuat di DB.`, 'fa-solid fa-book text-success');
+};
+
+const editSubject = async (sub: any) => {
+  if (isReadOnlyUser.value) return;
+  const { value: newName } = await Swal.fire({
+    title: 'Edit Mata Pelajaran',
+    input: 'text',
+    inputLabel: 'Nama Mata Pelajaran Baru',
+    inputValue: sub.name,
+    showCancelButton: true,
+    confirmButtonText: 'Simpan Perubahan',
+    cancelButtonText: 'Batal',
+    inputValidator: (value) => {
+      if (!value) return 'Nama mata pelajaran tidak boleh kosong!';
+    }
+  });
+
+  if (newName && newName !== sub.name) {
+    await runDatabaseSyncProcess(`Memperbarui Mata Pelajaran (${newName})...`, async () => {
+      await apiRequest('updateSubject', { id: sub.id, name: newName }, true);
+      sub.name = newName;
+      subjects.value.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+    });
+    triggerFuturisticToast('Mapel Diperbarui 📚', `Mata pelajaran berhasil diubah menjadi ${newName}.`, 'fa-solid fa-book text-success');
+  }
 };
 
 const deleteSubject = async (id: string) => {
@@ -3255,6 +3326,18 @@ const saveJournal = async () => {
 
 const resetJournalForm = () => {
   journalForm.value = { id: null, date: getLocalDateString(), subject_id: selectedSubjectId.value, topic: '', activities: '' };
+};
+
+const editJournal = (j: any) => {
+  if (isReadOnlyUser.value) return;
+  journalForm.value = {
+    id: j.id,
+    date: normalizeDate(j.date),
+    subject_id: j.subject_id,
+    topic: j.topic || '',
+    activities: j.activities || ''
+  };
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 const deleteJournal = async (id: string) => {

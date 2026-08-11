@@ -206,7 +206,7 @@ body {
   top: 0;
   bottom: 0;
   left: 0;
-  z-index: 1000;
+  z-index: 1050;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -725,8 +725,10 @@ select option {
 .sidebar-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-  z-index: 999;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1040;
   animation: fadeIn 0.2s ease-out;
 }
 
@@ -758,7 +760,6 @@ select option {
   }
   .app-sidebar .submenu-list {
     position: static !important;
-    display: flex !important;
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
