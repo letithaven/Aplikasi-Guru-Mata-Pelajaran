@@ -122,15 +122,15 @@
           </li>
 
           <!-- Master Data Accordion -->
-          <li class="menu-item" :class="{ active: currentTab === 'classes' || currentTab === 'students' }">
-            <a class="menu-link d-flex align-items-center justify-content-between" @click.stop="openMasterDataMenu = !openMasterDataMenu" title="Master Data">
+          <li class="menu-item" :class="{ active: currentTab === 'classes' || currentTab === 'students', 'flyout-open': openMasterDataMenu }">
+            <a class="menu-link d-flex align-items-center justify-content-between" @click.stop="toggleMasterDataMenu" title="Master Data">
               <div class="d-flex align-items-center gap-3">
                 <i class="fa-solid fa-database text-info"></i>
                 <span>Master Data</span>
               </div>
               <i class="fa-solid fa-chevron-down menu-chevron" :class="{ open: openMasterDataMenu }"></i>
             </a>
-            <ul class="submenu-list" v-show="openMasterDataMenu">
+            <ul class="submenu-list" v-show="openMasterDataMenu || sidebarCollapsed">
               <li class="submenu-item" :class="{ active: currentTab === 'classes' }">
                 <a class="submenu-link" @click="currentTab = 'classes'; mobileMenuOpen = false;" title="Kelas & Mapel">
                   <i class="fa-solid fa-layer-group"></i>
@@ -147,15 +147,15 @@
           </li>
 
           <!-- Aktivitas KBM & Presensi Accordion -->
-          <li class="menu-item" :class="{ active: currentTab === 'attendance' || currentTab === 'grades' || currentTab === 'journal' }">
-            <a class="menu-link d-flex align-items-center justify-content-between" @click.stop="openPresensiMenu = !openPresensiMenu" title="Aktivitas KBM & Presensi">
+          <li class="menu-item" :class="{ active: currentTab === 'attendance' || currentTab === 'grades' || currentTab === 'journal', 'flyout-open': openPresensiMenu }">
+            <a class="menu-link d-flex align-items-center justify-content-between" @click.stop="togglePresensiMenu" title="Aktivitas KBM & Presensi">
               <div class="d-flex align-items-center gap-3">
                 <i class="fa-solid fa-calendar-check text-info"></i>
                 <span>Aktivitas KBM</span>
               </div>
               <i class="fa-solid fa-chevron-down menu-chevron" :class="{ open: openPresensiMenu }"></i>
             </a>
-            <ul class="submenu-list" v-show="openPresensiMenu">
+            <ul class="submenu-list" v-show="openPresensiMenu || sidebarCollapsed">
               <li class="submenu-item" :class="{ active: currentTab === 'attendance' && attMode === 'daily' }">
                 <a class="submenu-link" @click="currentTab = 'attendance'; attMode = 'daily'; mobileMenuOpen = false;" title="Presensi Harian">
                   <i class="fa-solid fa-pen-to-square"></i>
@@ -435,48 +435,48 @@
             <!-- Quick Action Shortcuts Grid -->
             <div class="mb-4" v-if="selectedClassId">
               <h5 class="fw-bold text-light mb-3"><i class="fa-solid fa-bolt text-warning me-2"></i>Pintasan Akses Cepat</h5>
-              <div class="row g-3">
+              <div class="row g-3 align-items-stretch">
                 <div class="col-6 col-md-3">
-                  <div class="quick-action-card" @click="currentTab = 'attendance'; attMode = 'daily';">
+                  <div class="quick-action-card h-100" @click="currentTab = 'attendance'; attMode = 'daily';">
                     <div class="quick-action-icon qa-icon-cyan">
                       <i class="fa-solid fa-pen-to-square"></i>
                     </div>
-                    <div>
-                      <h6 class="fw-bold text-light mb-0">Presensi Harian</h6>
-                      <small class="text-muted d-block">Catat kehadiran hari ini</small>
+                    <div class="min-w-0 flex-grow-1">
+                      <h6 class="fw-bold text-light mb-0 text-truncate">Presensi Harian</h6>
+                      <small class="text-muted d-block text-truncate">Catat kehadiran hari ini</small>
                     </div>
                   </div>
                 </div>
                 <div class="col-6 col-md-3">
-                  <div class="quick-action-card" @click="currentTab = 'attendance'; attMode = 'recap'; loadMonthlyRecapData();">
+                  <div class="quick-action-card h-100" @click="currentTab = 'attendance'; attMode = 'recap'; loadMonthlyRecapData();">
                     <div class="quick-action-icon qa-icon-blue">
                       <i class="fa-solid fa-table-cells"></i>
                     </div>
-                    <div>
-                      <h6 class="fw-bold text-light mb-0">Rekap Bulanan</h6>
-                      <small class="text-muted d-block">Lihat persentase bulanan</small>
+                    <div class="min-w-0 flex-grow-1">
+                      <h6 class="fw-bold text-light mb-0 text-truncate">Rekap Bulanan</h6>
+                      <small class="text-muted d-block text-truncate">Lihat persentase bulanan</small>
                     </div>
                   </div>
                 </div>
                 <div class="col-6 col-md-3">
-                  <div class="quick-action-card" @click="currentTab = 'grades'; loadGradesData();">
+                  <div class="quick-action-card h-100" @click="currentTab = 'grades'; loadGradesData();">
                     <div class="quick-action-icon qa-icon-warning">
                       <i class="fa-solid fa-award"></i>
                     </div>
-                    <div>
-                      <h6 class="fw-bold text-light mb-0">Penilaian Akademik</h6>
-                      <small class="text-muted d-block">Nilai UH, UTS, & UAS</small>
+                    <div class="min-w-0 flex-grow-1">
+                      <h6 class="fw-bold text-light mb-0 text-truncate">Penilaian Akademik</h6>
+                      <small class="text-muted d-block text-truncate">Nilai UH, UTS, & UAS</small>
                     </div>
                   </div>
                 </div>
                 <div class="col-6 col-md-3">
-                  <div class="quick-action-card" @click="currentTab = 'journal'">
+                  <div class="quick-action-card h-100" @click="currentTab = 'journal'">
                     <div class="quick-action-icon qa-icon-success">
                       <i class="fa-solid fa-book-open-reader"></i>
                     </div>
-                    <div>
-                      <h6 class="fw-bold text-light mb-0">Jurnal Mengajar</h6>
-                      <small class="text-muted d-block">Tulis aktivitas KBM</small>
+                    <div class="min-w-0 flex-grow-1">
+                      <h6 class="fw-bold text-light mb-0 text-truncate">Jurnal Mengajar</h6>
+                      <small class="text-muted d-block text-truncate">Tulis aktivitas KBM</small>
                     </div>
                   </div>
                 </div>
@@ -1544,6 +1544,16 @@ const token = ref<string>(localStorage.getItem('digitalisasi_token') || '');
 const currentTab = ref<string>('dashboard');
 const openMasterDataMenu = ref<boolean>(false);
 const openPresensiMenu = ref<boolean>(false);
+
+const toggleMasterDataMenu = () => {
+  openMasterDataMenu.value = !openMasterDataMenu.value;
+  if (openMasterDataMenu.value) openPresensiMenu.value = false;
+};
+
+const togglePresensiMenu = () => {
+  openPresensiMenu.value = !openPresensiMenu.value;
+  if (openPresensiMenu.value) openMasterDataMenu.value = false;
+};
 const showProfileDropdown = ref<boolean>(false);
 const toggleProfileDropdown = () => {
   showProfileDropdown.value = !showProfileDropdown.value;

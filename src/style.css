@@ -213,6 +213,15 @@ body {
 @media (min-width: 992px) {
   .app-sidebar.collapsed {
     width: var(--sidebar-collapsed-width);
+    overflow: visible !important;
+  }
+
+  .app-sidebar.collapsed .sidebar-menu {
+    overflow: visible !important;
+  }
+
+  .app-sidebar.collapsed .menu-item {
+    position: relative;
   }
 
   .app-sidebar.collapsed .sidebar-brand span,
@@ -220,8 +229,7 @@ body {
   .app-sidebar.collapsed .user-info-text,
   .app-sidebar.collapsed .btn-hide-text,
   .app-sidebar.collapsed .sidebar-signature,
-  .app-sidebar.collapsed .menu-chevron,
-  .app-sidebar.collapsed .submenu-list {
+  .app-sidebar.collapsed .menu-chevron {
     display: none !important;
   }
 
@@ -238,6 +246,46 @@ body {
   .app-sidebar.collapsed .menu-link i {
     font-size: 1.2rem;
     margin: 0;
+  }
+
+  /* Flyout Floating Submenu for Collapsed Sidebar */
+  .app-sidebar.collapsed .submenu-list {
+    display: none !important;
+    position: absolute;
+    left: calc(100% + 10px);
+    top: 0;
+    background: #0f172a;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 15px rgba(14, 165, 233, 0.25);
+    border-radius: 0.75rem;
+    padding: 0.5rem;
+    min-width: 210px;
+    z-index: 1050;
+    margin: 0;
+  }
+
+  /* Show floating flyout on hover OR when parent menu state is open in collapsed mode */
+  .app-sidebar.collapsed .menu-item:hover .submenu-list,
+  .app-sidebar.collapsed .menu-item.flyout-open .submenu-list {
+    display: flex !important;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .app-sidebar.collapsed .submenu-list .submenu-link {
+    padding: 0.6rem 0.85rem;
+    border-radius: 0.5rem;
+    white-space: nowrap;
+  }
+
+  .app-sidebar.collapsed .submenu-list .submenu-link span {
+    display: inline !important;
+    font-size: 0.85rem;
+    color: var(--text-main);
+  }
+
+  .app-sidebar.collapsed .submenu-list .submenu-link i {
+    font-size: 0.95rem;
   }
 }
 
@@ -907,6 +955,8 @@ select option {
   display: flex;
   align-items: center;
   gap: 1rem;
+  height: 100%;
+  min-height: 84px;
 }
 
 .quick-action-card:hover {
