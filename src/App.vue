@@ -34,10 +34,15 @@
 
     <div v-if="isPublicView" class="container py-4">
       <div class="card p-4 text-light bg-dark">
-        <div class="text-center mb-4 pb-3 border-bottom border-secondary">
-          <h3 class="fw-extrabold mb-1 text-info">{{ publicReportData.schoolName || 'MAN 2 Seram Bagian Timur' }}</h3>
-          <h5 class="fw-bold text-light mb-1">LAPORAN MANAJEMEN KELAS & PRESENSI SISWA</h5>
-          <p class="text-muted mb-0">Kelas: <strong class="text-light">{{ publicReportData.className }}</strong> • {{ publicReportData.monthName ? 'Bulan: ' + publicReportData.monthName : 'Semester Berjalan' }}</p>
+        <div class="d-flex align-items-center justify-content-center gap-3 mb-4 pb-3 border-bottom border-secondary">
+          <div v-if="formattedMadrasahLogoUrl && !isLogoImageError" class="flex-shrink-0">
+            <img :src="formattedMadrasahLogoUrl" alt="Logo Madrasah" @error="handleLogoError" style="max-height: 65px; max-width: 65px; object-fit: contain;" />
+          </div>
+          <div class="text-center">
+            <h3 class="fw-extrabold mb-1 text-info">{{ publicReportData.schoolName || 'MAN 2 Seram Bagian Timur' }}</h3>
+            <h5 class="fw-bold text-light mb-1">LAPORAN MANAJEMEN KELAS & PRESENSI SISWA</h5>
+            <p class="text-muted mb-0">Kelas: <strong class="text-light">{{ publicReportData.className }}</strong> • {{ publicReportData.monthName ? 'Bulan: ' + publicReportData.monthName : 'Semester Berjalan' }}</p>
+          </div>
         </div>
 
         <div v-if="publicReportLoading" class="text-center py-5">
@@ -106,11 +111,17 @@
 
     <div id="app-container" v-if="!isPublicView">
       <aside class="app-sidebar" :class="{ 'collapsed': sidebarCollapsed, 'mobile-open': mobileMenuOpen }" v-if="currentUser">
-        <a href="#" class="sidebar-brand">
-          <div class="brand-icon">
-            <i class="fa-solid fa-graduation-cap"></i>
+        <a href="#" class="sidebar-brand d-flex align-items-center gap-2">
+          <div v-if="formattedMadrasahLogoUrl && !isLogoImageError" class="brand-icon overflow-hidden p-1 bg-white bg-opacity-10 border border-info border-opacity-30 rounded-circle flex-shrink-0" style="width: 36px; height: 36px;">
+            <img :src="formattedMadrasahLogoUrl" alt="Logo Madrasah" @error="handleLogoError" style="width: 100%; height: 100%; object-fit: contain;" />
           </div>
-          <span>Digitalisasi Data oleh Guru</span>
+          <div v-else class="brand-icon bg-info bg-opacity-20 border border-info border-opacity-40 text-info d-flex align-items-center justify-content-center rounded-3 flex-shrink-0" style="width: 36px; height: 36px; box-shadow: 0 0 10px rgba(14,165,233,0.3);">
+            <i class="fa-solid fa-cube text-info"></i>
+          </div>
+          <div class="brand-text-wrapper min-w-0">
+            <div class="fw-extrabold text-light text-truncate" style="font-size: 1.05rem; letter-spacing: 0.5px;">DADU Guru</div>
+            <small class="text-info d-block text-truncate" style="font-size: 0.64rem; font-weight: 600; letter-spacing: 0.2px; margin-top: -3px;">Digitalisasi Data dari Guru</small>
+          </div>
         </a>
         
         <ul class="sidebar-menu">
@@ -212,11 +223,11 @@
               <i class="fa-solid" :class="sidebarCollapsed ? 'fa-indent' : 'fa-bars'"></i>
             </button>
             
-            <div class="d-flex align-items-center gap-1">
-              <i class="fa-solid fa-school text-info flex-shrink-0 d-none d-sm-inline"></i>
-              <select class="form-select form-select-sm fw-bold border-0 text-truncate" v-model="selectedClassId" style="min-width: 140px; max-width: 185px;" @change="onClassChange" title="Pilih Kelas Aktif">
-                <option value="" disabled>-- Pilih Kelas --</option>
-                <option v-for="c in classes" :key="c.id" :value="c.id">{{ c.name }}</option>
+            <div class="d-flex align-items-center gap-1.5 bg-dark bg-opacity-60 border border-info border-opacity-30 rounded-3 px-2 py-0.5 shadow-sm">
+              <i class="fa-solid fa-school text-info flex-shrink-0" style="font-size: 0.85rem;"></i>
+              <select class="form-select form-select-sm fw-bold border-0 bg-transparent text-light shadow-none text-truncate py-1 ms-1" v-model="selectedClassId" style="min-width: 130px; max-width: 175px; cursor: pointer; font-size: 0.82rem;" @change="onClassChange" title="Pilih Kelas Aktif">
+                <option value="" disabled class="bg-dark text-light">Pilih Kelas</option>
+                <option v-for="c in classes" :key="c.id" :value="c.id" class="bg-dark text-light">{{ c.name }}</option>
               </select>
             </div>
 
@@ -291,11 +302,23 @@
             <div class="auth-card">
               <div class="card p-3 p-sm-3.5 shadow-lg">
                 <div class="text-center mb-2">
-                  <div class="brand-icon mx-auto mb-1" style="width: 42px; height: 42px; font-size: 1.15rem;">
-                    <i class="fa-solid fa-graduation-cap"></i>
+                  <!-- Container Brand Header Login Card (Desain Elegan & Harmonis) -->
+                  <div v-if="formattedMadrasahLogoUrl && !isLogoImageError" class="mx-auto mb-2.5 d-flex align-items-center justify-content-center overflow-hidden p-1.5 bg-white bg-opacity-10 border border-info border-opacity-30 rounded-circle shadow" style="width: 62px; height: 62px; box-shadow: 0 0 20px rgba(14,165,233,0.2) !important;">
+                    <img :src="formattedMadrasahLogoUrl" alt="Logo Madrasah" @error="handleLogoError" style="width: 100%; height: 100%; object-fit: contain;" />
                   </div>
-                  <h5 class="fw-bold text-light mb-0" style="font-size: 1.05rem;">Digitalisasi Data oleh Guru</h5>
-                  <p class="text-muted mb-0" style="font-size: 0.72rem;">MAN 2 Seram Bagian Timur • Oleh Johan R. A.</p>
+
+                  <!-- Fallback Jika Belum Mengatur Logo Madrasah -->
+                  <div v-else class="brand-icon mx-auto mb-2.5 bg-info bg-opacity-20 border border-info border-opacity-40 rounded-3 text-info d-flex align-items-center justify-content-center shadow-sm" style="width: 58px; height: 58px; font-size: 1.5rem; box-shadow: 0 0 20px rgba(14,165,233,0.3) !important;">
+                    <i class="fa-solid fa-cube text-info"></i>
+                  </div>
+
+                  <!-- Judul DADU dengan Icon Cube Futuristik -->
+                  <h4 class="fw-extrabold text-light mb-1 d-flex align-items-center justify-content-center gap-2" style="font-size: 1.45rem; letter-spacing: 0.8px;">
+                    <i class="fa-solid fa-cube text-info"></i>
+                    <span>DADU</span>
+                  </h4>
+                  <p class="text-info fw-bold mb-0.5" style="font-size: 0.82rem; letter-spacing: 0.2px;">Digitalisasi Data dari Guru</p>
+                  <p class="text-muted mb-0" style="font-size: 0.74rem;">MAN 2 Seram Bagian Timur</p>
                 </div>
 
                 <ul class="nav nav-pills nav-justified mb-2 p-1 bg-dark bg-opacity-50 rounded-3 border border-secondary" id="pills-tab">
@@ -1042,20 +1065,20 @@
 
           <!-- Academic Grades Tab -->
           <div v-if="currentUser && currentTab === 'grades'">
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
               <div>
                 <h4 class="fw-bold text-light mb-1"><i class="fa-solid fa-award text-info me-2"></i>Penilaian Akademik: {{ currentClassName }}</h4>
                 <p class="sub-title-text mb-0">Input nilai Ulangan Harian, UTS, dan UAS siswa.</p>
               </div>
-              <div class="d-flex gap-2 align-items-center" v-if="selectedClassId">
-                <select class="form-select form-select-sm" v-model="selectedSubjectId" @change="loadGradesData" style="width: auto;">
-                  <option value="" disabled>-- Pilih Mapel --</option>
+              <div class="d-flex flex-wrap gap-2 align-items-center w-100 w-md-auto" v-if="selectedClassId">
+                <select class="form-select form-select-sm flex-fill flex-md-grow-0" v-model="selectedSubjectId" @change="loadGradesData" style="min-width: 140px; width: auto;">
+                  <option value="" disabled>Pilih Mapel</option>
                   <option v-for="sub in subjects" :key="sub.id" :value="sub.id">{{ sub.name }}</option>
                 </select>
-                <button v-if="!isReadOnlyUser" class="btn btn-outline-info btn-sm text-nowrap" @click="openBulkFillGradesModal">
+                <button v-if="!isReadOnlyUser" class="btn btn-outline-info btn-sm text-nowrap flex-fill flex-md-grow-0" @click="openBulkFillGradesModal">
                   <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Isi Nilai Massal
                 </button>
-                <button v-if="!isReadOnlyUser" class="btn btn-cyber btn-sm text-nowrap" @click="saveGradesBulk" :disabled="isDbProcessing">
+                <button v-if="!isReadOnlyUser" class="btn btn-cyber btn-sm text-nowrap flex-fill flex-md-grow-0" @click="saveGradesBulk" :disabled="isDbProcessing">
                   <i class="fa-solid" :class="isDbProcessing ? 'fa-spinner fa-spin me-1' : 'fa-floppy-disk me-1'"></i> Simpan Nilai
                 </button>
               </div>
@@ -1112,9 +1135,9 @@
           </div>
 
           <div v-if="currentUser && currentTab === 'journal'">
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-4">
               <h4 class="fw-bold text-light mb-0"><i class="fa-solid fa-book-open-reader text-info me-2"></i>Jurnal Mengajar KBM</h4>
-              <button v-if="!isReadOnlyUser && selectedClassId" class="btn btn-cyber" @click="resetJournalForm"><i class="fa-solid fa-plus me-1"></i> Form Jurnal Baru</button>
+              <button v-if="!isReadOnlyUser && selectedClassId" class="btn btn-cyber text-nowrap" @click="resetJournalForm"><i class="fa-solid fa-plus me-1"></i> Form Jurnal Baru</button>
             </div>
 
             <div v-if="!selectedClassId" class="theme-alert-banner p-4 mb-4 d-flex align-items-center gap-3">
@@ -1187,7 +1210,7 @@
                           <td v-if="!isReadOnlyUser">
                             <input type="checkbox" class="form-check-input cursor-pointer" :value="j.id" v-model="selectedJournalIds">
                           </td>
-                          <td><span class="badge bg-secondary bg-opacity-30 text-info border border-info border-opacity-20">{{ j.date }}</span></td>
+                          <td><span class="badge bg-secondary bg-opacity-30 text-info border border-info border-opacity-20">{{ formatDisplayDate(j.date) }}</span></td>
                           <td class="fw-semibold text-light">{{ getSubjectName(j.subject_id) }}</td>
                           <td class="text-light">{{ j.topic }}</td>
                           <td><small class="text-muted">{{ j.activities }}</small></td>
@@ -1214,18 +1237,18 @@
           </div>
 
           <div v-if="currentUser && currentTab === 'report'">
-            <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4 no-print">
               <div>
                 <h4 class="fw-bold text-light mb-1"><i class="fa-solid fa-file-invoice text-info me-2"></i>Laporan Transparan Wali Murid</h4>
                 <p class="sub-title-text mb-0">Cetak dokumen PDF dan bagikan link laporan presensi kelas {{ currentClassName }}</p>
               </div>
               
-              <div class="d-flex gap-2" v-if="selectedClassId">
-                <button class="btn btn-outline-info" @click="copyPublicLink" title="Salin Link Publik Wali Murid">
-                  <i class="fa-solid fa-share-nodes me-1"></i> Salin Link Laporan Publik
+              <div class="d-flex flex-wrap gap-2 w-100 w-sm-auto" v-if="selectedClassId">
+                <button class="btn btn-outline-info flex-fill flex-sm-grow-0 text-nowrap" @click="copyPublicLink" title="Salin Link Publik Wali Murid">
+                  <i class="fa-solid fa-share-nodes me-1"></i> Salin Link Laporan
                 </button>
-                <button class="btn btn-cyber" @click="printReport">
-                  <i class="fa-solid fa-print me-1"></i> Cetak Dokumen PDF
+                <button class="btn btn-cyber flex-fill flex-sm-grow-0 text-nowrap" @click="printReport">
+                  <i class="fa-solid fa-print me-1"></i> Cetak PDF
                 </button>
               </div>
             </div>
@@ -1265,10 +1288,15 @@
               </div>
 
               <div class="card p-4 text-light">
-                <div class="text-center mb-4 pb-3 border-bottom border-secondary">
-                  <h3 class="fw-extrabold mb-1 text-light">{{ currentUser.nama_madrasah || 'MAN 2 Seram Bagian Timur' }}</h3>
-                  <h5 class="fw-bold text-info mb-1">LAPORAN REKAPITULASI PRESENSI SISWA</h5>
-                  <p class="text-muted mb-0">Kelas: <strong class="text-light">{{ currentClassName }}</strong> • {{ reportMonthNum !== 'ALL' ? 'Bulan: ' + getMonthName(reportMonthNum) + ' ' + reportYear : 'Semester Berjalan' }}</p>
+                <div class="d-flex align-items-center justify-content-center gap-3 mb-4 pb-3 border-bottom border-secondary">
+                  <div v-if="formattedMadrasahLogoUrl && !isLogoImageError" class="flex-shrink-0">
+                    <img :src="formattedMadrasahLogoUrl" alt="Logo Madrasah" @error="handleLogoError" style="max-height: 70px; max-width: 70px; object-fit: contain;" />
+                  </div>
+                  <div class="text-center">
+                    <h3 class="fw-extrabold mb-1 text-light">{{ currentUser.nama_madrasah || 'MAN 2 Seram Bagian Timur' }}</h3>
+                    <h5 class="fw-bold text-info mb-1">LAPORAN REKAPITULASI PRESENSI SISWA</h5>
+                    <p class="text-muted mb-0">Kelas: <strong class="text-light">{{ currentClassName }}</strong> • {{ reportMonthNum !== 'ALL' ? 'Bulan: ' + getMonthName(reportMonthNum) + ' ' + reportYear : 'Semester Berjalan' }}</p>
+                  </div>
                 </div>
 
                 <div class="table-responsive mb-4">
@@ -1381,7 +1409,7 @@
                     <span v-if="selectedTheme === 'midnight'" class="badge bg-warning text-dark theme-card-badge fw-bold"><i class="fa-solid fa-check me-1"></i> Aktif</span>
                     <div class="d-flex align-items-center gap-2 mb-3">
                       <div class="rounded-circle bg-warning d-flex align-items-center justify-content-center text-dark fw-bold" style="width: 32px; height: 32px;">
-                        <i class="fa-solid fa-sparkles"></i>
+                        <i class="fa-solid fa-crown"></i>
                       </div>
                       <div>
                         <h6 class="fw-bold text-light mb-0">Midnight Luxury</h6>
@@ -1398,30 +1426,61 @@
               </div>
             </div>
 
+            <!-- Integration & Identity Configuration Summary Cards -->
             <div class="card p-4 mb-4" v-if="!isReadOnlyUser">
-              <h5 class="fw-bold text-light mb-3">Konfigurasi URL Endpoint Web App</h5>
-              <p class="sub-title-text mb-4">Pastikan URL Web App Google Apps Script terpasang secara tepat.</p>
+              <h5 class="fw-bold text-light mb-2"><i class="fa-solid fa-sliders text-info me-2"></i>Konfigurasi Integrasi & Identitas System</h5>
+              <p class="sub-title-text mb-4">Pengaturan koneksi Web App Google Apps Script dan logo resmi madrasah disajikan dalam panel ringkas untuk kemudahan pengelolaan.</p>
 
-              <form @submit.prevent="saveApiUrl">
-                <div class="mb-3">
-                  <label class="form-label">Google Apps Script Web App URL</label>
-                  <input type="text" class="form-control form-control-lg font-monospace" v-model="apiUrl" required placeholder="https://script.google.com/macros/s/.../exec">
+              <div class="row g-3">
+                <!-- Status Card Web App Endpoint -->
+                <div class="col-12 col-md-6">
+                  <div class="p-3 rounded bg-dark border border-secondary h-100 d-flex flex-column justify-content-between">
+                    <div>
+                      <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+                        <span class="fw-bold text-light" style="font-size: 0.9rem;"><i class="fa-solid fa-plug text-info me-2"></i>Web App Endpoint URL</span>
+                        <span class="badge bg-success text-dark fw-bold px-2 py-1" style="font-size: 0.72rem;"><i class="fa-solid fa-circle-check me-1"></i>Terkoneksi</span>
+                      </div>
+                      <p class="text-muted small mb-2 font-monospace text-truncate" style="max-width: 100%;">{{ apiUrl || 'Belum Diatur' }}</p>
+                    </div>
+                    <div class="pt-2 border-top border-secondary border-opacity-30 d-flex gap-2">
+                      <button type="button" class="btn btn-outline-cyber btn-sm w-100" data-bs-toggle="modal" data-bs-target="#webAppUrlModal">
+                        <i class="fa-solid fa-pen-to-square me-1"></i> Atur & Uji Web App URL
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
-                <div class="d-flex gap-2 mt-4">
-                  <button type="submit" class="btn btn-cyber px-4">
-                    <i class="fa-solid fa-floppy-disk me-1"></i> Simpan Konfigurasi
-                  </button>
-                  <button type="button" class="btn btn-outline-cyber" @click="testApiConnection">
-                    <i class="fa-solid fa-plug me-1"></i> Uji Koneksi API
-                  </button>
+                <!-- Status Card Logo Madrasah -->
+                <div class="col-12 col-md-6">
+                  <div class="p-3 rounded bg-dark border border-secondary h-100 d-flex flex-column justify-content-between">
+                    <div>
+                      <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+                        <span class="fw-bold text-light" style="font-size: 0.9rem;"><i class="fa-solid fa-school-flag text-warning me-2"></i>Logo Resmi Madrasah</span>
+                        <span class="badge px-2 py-1 fw-bold" :class="madrasahLogoUrl ? 'bg-info text-dark' : 'bg-secondary text-white'" style="font-size: 0.72rem;">
+                          <i class="fa-solid me-1" :class="madrasahLogoUrl ? 'fa-image' : 'fa-image-slash'"></i> {{ madrasahLogoUrl ? 'Logo Terpasang' : 'Default' }}
+                        </span>
+                      </div>
+                      <div class="d-flex align-items-center gap-3 mb-2">
+                        <div class="p-1 rounded bg-black border border-secondary d-flex align-items-center justify-content-center flex-shrink-0" style="width: 42px; height: 42px;">
+                          <img v-if="formattedMadrasahLogoUrl && !isLogoImageError" :src="formattedMadrasahLogoUrl" alt="Logo Thumbnail" @error="handleLogoError" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+                          <i v-else class="fa-solid fa-graduation-cap text-muted"></i>
+                        </div>
+                        <p class="text-muted small mb-0 text-truncate font-monospace" style="max-width: 100%;">{{ madrasahLogoUrl || 'Menggunakan Logo Default System' }}</p>
+                      </div>
+                    </div>
+                    <div class="pt-2 border-top border-secondary border-opacity-30 d-flex gap-2">
+                      <button type="button" class="btn btn-outline-info btn-sm w-100" data-bs-toggle="modal" data-bs-target="#madrasahLogoModal">
+                        <i class="fa-solid fa-image me-1"></i> Kelola Logo Madrasah
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </form>
+              </div>
             </div>
 
             <!-- Management & Diagnosis Struktur Database System -->
             <div class="card p-4 mb-4" v-if="!isReadOnlyUser">
-              <div class="d-flex justify-content-between align-items-center mb-2">
+              <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-2">
                 <h5 class="fw-bold text-light mb-0"><i class="fa-solid fa-database-gear text-info me-2"></i>Pemeriksaan & Pemeliharaan Tabel Database</h5>
                 <span class="badge bg-success text-white border border-success font-monospace px-2 py-1" style="font-size: 0.75rem;"><i class="fa-solid fa-circle-check me-1"></i>DB Status: Operational (8 Tabel)</span>
               </div>
@@ -1439,6 +1498,47 @@
                 <button type="button" class="btn btn-outline-danger py-2 px-3 d-flex align-items-center gap-2" @click="resetEntireDatabase" :disabled="isDbProcessing">
                   <i class="fa-solid fa-triangle-exclamation text-danger"></i>
                   <span>Inisialisasi / Reset Seluruh DB</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Cadangan & Pemulihan Data (Backup JSON) -->
+            <div class="card p-4 mb-4" v-if="!isReadOnlyUser">
+              <h5 class="fw-bold text-light mb-2"><i class="fa-solid fa-box-archive text-warning me-2"></i>Cadangan & Pemulihan Data Aplikasi (JSON Backup)</h5>
+              <p class="sub-title-text mb-3">Simpan salinan cadangan lengkap data lokal Anda ke file JSON atau pulihkan data dari file cadangan sebelumnya secara mandiri.</p>
+
+              <div class="d-flex flex-wrap gap-2">
+                <button type="button" class="btn btn-cyber py-2 px-3 d-flex align-items-center gap-2" @click="exportBackupJSON">
+                  <i class="fa-solid fa-file-export text-warning"></i>
+                  <span>Unduh File Cadangan (.json)</span>
+                </button>
+
+                <label class="btn btn-outline-info py-2 px-3 d-flex align-items-center gap-2 mb-0 cursor-pointer">
+                  <i class="fa-solid fa-file-import text-info"></i>
+                  <span>Pulihkan Data dari File (.json)</span>
+                  <input type="file" accept=".json" class="d-none" @change="importBackupJSON">
+                </label>
+              </div>
+            </div>
+
+            <!-- Monitoring Penyimpanan LocalStorage & Sanitasi Cache -->
+            <div class="card p-4 mb-4">
+              <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-2">
+                <h5 class="fw-bold text-light mb-0"><i class="fa-solid fa-hard-drive text-info me-2"></i>Status Kapasitas Memori Perangkat & Sanitasi Cache</h5>
+                <span class="badge bg-info text-dark font-monospace px-2 py-1" style="font-size: 0.78rem;">
+                  {{ localStorageUsageMB }} MB / 5.00 MB ({{ localStoragePercent }}%)
+                </span>
+              </div>
+              <p class="sub-title-text mb-3">Memantau penggunaan memori browser lokal dan membersihkan file cache temporary secara aman tanpa mengganggu data utama Google Sheets.</p>
+
+              <div class="progress bg-dark border border-secondary mb-3" style="height: 10px;">
+                <div class="progress-bar bg-info progress-bar-striped progress-bar-animated" :style="{ width: localStoragePercent + '%' }"></div>
+              </div>
+
+              <div class="d-flex flex-wrap gap-2">
+                <button type="button" class="btn btn-outline-cyber py-2 px-3 d-flex align-items-center gap-2" @click="sanitizeSafeCache">
+                  <i class="fa-solid fa-broom text-success"></i>
+                  <span>Bersihkan Cache Aman (Auto Sanitation)</span>
                 </button>
               </div>
             </div>
@@ -1513,6 +1613,100 @@
                 <button type="submit" class="btn btn-cyber px-4" :disabled="isDbProcessing">
                   <i class="fa-solid" :class="isDbProcessing ? 'fa-circle-notch fa-spin me-1' : 'fa-floppy-disk me-1'"></i> Simpan Profil
                 </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Input Web App URL -->
+    <div class="modal fade" id="webAppUrlModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content card border-secondary text-light">
+          <div class="modal-header border-secondary">
+            <h5 class="modal-title fw-bold text-info"><i class="fa-solid fa-plug me-2"></i>Konfigurasi Web App URL (Google Apps Script)</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <p class="text-muted small mb-3">Pastikan URL Web App Google Apps Script dari spreadsheet Anda terpasang dengan benar untuk mendukung sinkronisasi database harian.</p>
+            
+            <form @submit.prevent="saveAndTestApiUrlModal">
+              <div class="mb-3">
+                <label class="form-label fw-semibold text-light">Google Apps Script Web App URL</label>
+                <div class="input-group input-group-lg">
+                  <span class="input-group-text bg-dark border-secondary text-info"><i class="fa-solid fa-link"></i></span>
+                  <input type="text" class="form-control font-monospace fs-6 text-light bg-dark" v-model="apiUrl" required placeholder="https://script.google.com/macros/s/.../exec">
+                </div>
+                <small class="text-muted d-block mt-2">
+                  <i class="fa-solid fa-circle-info text-info me-1"></i>
+                  URL harus berakhiran <code>/exec</code> dan disetel dengan hak akses <strong>"Anyone" (Siapa Saja)</strong> di Google Apps Script.
+                </small>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top border-secondary">
+                <button type="button" class="btn btn-outline-cyber btn-sm" @click="testApiConnection">
+                  <i class="fa-solid fa-vial me-1"></i> Uji Koneksi API
+                </button>
+                <div class="d-flex gap-2">
+                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
+                  <button type="submit" class="btn btn-cyber px-4" :disabled="isDbProcessing">
+                    <i class="fa-solid" :class="isDbProcessing ? 'fa-spinner fa-spin me-1' : 'fa-floppy-disk me-1'"></i> Simpan & Tutup
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Input Logo Madrasah -->
+    <div class="modal fade" id="madrasahLogoModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content card border-secondary text-light">
+          <div class="modal-header border-secondary">
+            <h5 class="modal-title fw-bold text-info"><i class="fa-solid fa-school-flag me-2"></i>Kelola Logo Resmi Madrasah</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <p class="text-muted small mb-3">Logo ini akan tampil otomatis pada Kop Laporan PDF, Halaman Login, dan Header Aplikasi.</p>
+
+            <form @submit.prevent="saveMadrasahLogoModal">
+              <div class="mb-3">
+                <label class="form-label fw-semibold text-light">URL Gambar Logo (Google Drive / Direct Link)</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-dark border-secondary text-info"><i class="fa-solid fa-link"></i></span>
+                  <input type="text" class="form-control font-monospace text-light bg-dark" v-model="madrasahLogoUrlInput" @input="isLogoImageError = false" placeholder="https://drive.google.com/file/d/.../view?usp=sharing">
+                </div>
+                <small class="text-muted d-block mt-1" style="font-size: 0.75rem;">
+                  <i class="fa-solid fa-circle-info text-info me-1"></i> Link Google Drive akan dikonversi otomatis menjadi direct CDN oleh sistem.
+                </small>
+              </div>
+
+              <div class="mb-3 text-center">
+                <label class="form-label fw-semibold text-light d-block mb-2">Pratinjau Logo Saat Ini</label>
+                <div class="logo-preview-box d-flex align-items-center justify-content-center mx-auto p-2 rounded border border-secondary bg-dark shadow-sm" style="width: 100px; height: 100px;">
+                  <img v-if="formattedInputLogoUrl && !isLogoImageError" :src="formattedInputLogoUrl" alt="Logo Preview" @error="handleLogoError" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+                  <div v-else class="text-center text-muted" style="font-size: 0.72rem;">
+                    <i class="fa-solid fa-image-slash fa-2x mb-1 text-secondary d-block"></i>
+                    <span>Tanpa Logo</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top border-secondary">
+                <button type="button" class="btn btn-outline-danger btn-sm" v-if="madrasahLogoUrlInput" @click="clearMadrasahLogoModal">
+                  <i class="fa-solid fa-trash me-1"></i> Hapus Logo
+                </button>
+                <span v-else></span>
+
+                <div class="d-flex gap-2">
+                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
+                  <button type="submit" class="btn btn-cyber px-4">
+                    <i class="fa-solid fa-floppy-disk me-1"></i> Simpan Logo
+                  </button>
+                </div>
               </div>
             </form>
           </div>
@@ -1755,6 +1949,24 @@ const normalizeDate = (dStr: any) => {
   return s;
 };
 
+const formatDisplayDate = (dStr: any) => {
+  if (!dStr) return '-';
+  const norm = normalizeDate(dStr);
+  if (!norm || norm.length < 10) return String(dStr);
+  const parts = norm.split('-');
+  if (parts.length < 3) return String(dStr);
+  const year = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10) - 1;
+  const day = parseInt(parts[2], 10);
+  if (isNaN(year) || isNaN(month) || isNaN(day)) return String(dStr);
+  const d = new Date(year, month, day);
+  const dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+  const dayName = dayNames[d.getDay()] || '';
+  const monthName = monthNames[month] || '';
+  return `${dayName}, ${String(day).padStart(2, '0')} ${monthName} ${year}`;
+};
+
 const startProgressAnimation = () => {
   loading.value = true;
   loadingProgress.value = 15;
@@ -1904,17 +2116,27 @@ const startSupervisionMode = async () => {
 
 const loadInitialData = async () => {
   if (!currentUser.value) return;
-  const [clsList, subList, stList, jList] = await Promise.all([
+  const [clsList, subList, stList, jList, settingsList] = await Promise.all([
     apiRequest('getClasses'),
     apiRequest('getSubjects'),
     apiRequest('getStudents'),
-    apiRequest('getJournals')
+    apiRequest('getJournals'),
+    apiRequest('getSettings').catch(() => [])
   ]);
 
   classes.value = Array.isArray(clsList) ? clsList.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' })) : [];
   subjects.value = Array.isArray(subList) ? subList.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' })) : [];
   students.value = Array.isArray(stList) ? stList : [];
   journals.value = Array.isArray(jList) ? jList : [];
+
+  if (Array.isArray(settingsList)) {
+    const logoSetting = settingsList.find((s: any) => s.key === 'madrasah_logo');
+    if (logoSetting && logoSetting.value) {
+      madrasahLogoUrl.value = logoSetting.value;
+      madrasahLogoUrlInput.value = logoSetting.value;
+      localStorage.setItem('digitalisasi_madrasah_logo', logoSetting.value);
+    }
+  }
 
   selectedClassId.value = '';
 
@@ -2772,9 +2994,216 @@ const loadGradesData = async () => {
 };
 
 const calculateStudentGradeAverage = (studentId: string) => {
-  const list = [currentGrades.value[`${studentId}_UH1`], currentGrades.value[`${studentId}_UH2`], currentGrades.value[`${studentId}_UTS`], currentGrades.value[`${studentId}_UAS`]].filter(v => v !== undefined && v !== null && v !== '' && !isNaN(v) && Number(v) > 0);
-  if (list.length === 0) return 0;
+  const list = [
+    currentGrades.value[`${studentId}_UH1`],
+    currentGrades.value[`${studentId}_UH2`],
+    currentGrades.value[`${studentId}_UTS`],
+    currentGrades.value[`${studentId}_UAS`]
+  ].filter(v => v !== undefined && v !== null && v !== '' && !isNaN(v) && Number(v) >= 0);
+  if (list.length === 0) return '-';
   return (list.reduce((a, b) => a + Number(b), 0) / list.length).toFixed(1);
+};
+
+const localStorageUsageMB = ref<string>('0.00');
+const localStoragePercent = ref<number>(0);
+
+const madrasahLogoUrl = ref<string>(localStorage.getItem('digitalisasi_madrasah_logo') || '');
+const madrasahLogoUrlInput = ref<string>(madrasahLogoUrl.value);
+const isLogoImageError = ref<boolean>(false);
+
+const convertDriveUrlToDirectImg = (url: string) => {
+  if (!url) return '';
+  const trimmed = url.trim();
+  const matchD = trimmed.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  const matchId = trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  const fileId = matchD ? matchD[1] : (matchId ? matchId[1] : null);
+  if (fileId) {
+    return `https://lh3.googleusercontent.com/d/${fileId}`;
+  }
+  return trimmed;
+};
+
+const formattedMadrasahLogoUrl = computed(() => {
+  return convertDriveUrlToDirectImg(madrasahLogoUrl.value);
+});
+
+const formattedInputLogoUrl = computed(() => {
+  return convertDriveUrlToDirectImg(madrasahLogoUrlInput.value);
+});
+
+const handleLogoError = () => {
+  isLogoImageError.value = true;
+};
+
+const saveMadrasahLogo = async () => {
+  isLogoImageError.value = false;
+  madrasahLogoUrl.value = madrasahLogoUrlInput.value.trim();
+  localStorage.setItem('digitalisasi_madrasah_logo', madrasahLogoUrl.value);
+  
+  if (currentUser.value) {
+    currentUser.value.madrasah_logo = madrasahLogoUrl.value;
+    localStorage.setItem('digitalisasi_user', JSON.stringify(currentUser.value));
+  }
+
+  try {
+    if (apiUrl.value && !isReadOnlyUser.value) {
+      await apiRequest('saveSetting', { key: 'madrasah_logo', value: madrasahLogoUrl.value }, true);
+    }
+  } catch (err) {
+    console.warn('Gagal menyimpan logo ke Google Sheets:', err);
+  }
+
+  triggerFuturisticToast(
+    'Logo Berhasil Disimpan 🏫',
+    'Logo madrasah diperbarui & tersimpan otomatis ke Google Sheets (Tabel Pengaturan).',
+    'fa-solid fa-school-flag text-success'
+  );
+};
+
+const clearMadrasahLogo = async () => {
+  madrasahLogoUrlInput.value = '';
+  madrasahLogoUrl.value = '';
+  isLogoImageError.value = false;
+  localStorage.removeItem('digitalisasi_madrasah_logo');
+  if (currentUser.value) {
+    delete currentUser.value.madrasah_logo;
+    localStorage.setItem('digitalisasi_user', JSON.stringify(currentUser.value));
+  }
+
+  try {
+    if (apiUrl.value && !isReadOnlyUser.value) {
+      await apiRequest('saveSetting', { key: 'madrasah_logo', value: '' }, true);
+    }
+  } catch (err) {
+    console.warn('Gagal menghapus logo dari Google Sheets:', err);
+  }
+
+  triggerFuturisticToast(
+    'Logo Dihapus 🗑️',
+    'Logo madrasah telah dihapus dari sistem & Google Sheets.',
+    'fa-solid fa-trash text-warning'
+  );
+};
+
+const calculateLocalStorageUsage = () => {
+  try {
+    let totalBytes = 0;
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key) {
+        const val = localStorage.getItem(key) || '';
+        totalBytes += (key.length + val.length) * 2;
+      }
+    }
+    const mb = totalBytes / (1024 * 1024);
+    localStorageUsageMB.value = mb.toFixed(2);
+    localStoragePercent.value = Math.min(100, Math.round((mb / 5.0) * 100));
+  } catch (e) {
+    localStorageUsageMB.value = '0.00';
+    localStoragePercent.value = 0;
+  }
+};
+
+const exportBackupJSON = () => {
+  const backupObj = {
+    app: 'System Digitalisasi Guru (JRA)',
+    version: '1.0.0',
+    exportedAt: new Date().toISOString(),
+    user: currentUser.value,
+    madrasahLogo: madrasahLogoUrl.value,
+    classes: classes.value,
+    subjects: subjects.value,
+    students: students.value,
+    attendances: attendances.value,
+    grades: grades.value,
+    journals: journals.value,
+    apiUrl: apiUrl.value
+  };
+
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupObj, null, 2));
+  const downloadAnchor = document.createElement('a');
+  downloadAnchor.setAttribute("href", dataStr);
+  downloadAnchor.setAttribute("download", `Backup_Data_Guru_JRA_${getLocalDateString()}.json`);
+  document.body.appendChild(downloadAnchor);
+  downloadAnchor.click();
+  downloadAnchor.remove();
+
+  triggerFuturisticToast(
+    'Cadangan Berhasil Diunduh 📦',
+    'File JSON cadangan data berhasil tersimpan di perangkat Anda.',
+    'fa-solid fa-file-export text-success'
+  );
+};
+
+const importBackupJSON = (event: any) => {
+  if (isReadOnlyUser.value) return;
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = async (e: any) => {
+    try {
+      const backupData = JSON.parse(e.target.result);
+      if (!backupData || typeof backupData !== 'object') throw new Error('File cadangan tidak valid.');
+
+      const result = await Swal.fire({
+        title: 'Pulihkan Data dari Cadangan?',
+        text: 'Data lokal saat ini akan diperbarui dengan data dari file JSON cadangan ini.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, Pulihkan Data',
+        cancelButtonText: 'Batal'
+      });
+
+      if (result.isConfirmed) {
+        if (backupData.madrasahLogo) {
+          madrasahLogoUrl.value = backupData.madrasahLogo;
+          madrasahLogoUrlInput.value = backupData.madrasahLogo;
+          localStorage.setItem('digitalisasi_madrasah_logo', backupData.madrasahLogo);
+        }
+        if (Array.isArray(backupData.classes)) classes.value = backupData.classes;
+        if (Array.isArray(backupData.subjects)) subjects.value = backupData.subjects;
+        if (Array.isArray(backupData.students)) students.value = backupData.students;
+        if (Array.isArray(backupData.attendances)) attendances.value = backupData.attendances;
+        if (Array.isArray(backupData.grades)) grades.value = backupData.grades;
+        if (Array.isArray(backupData.journals)) journals.value = backupData.journals;
+
+        calculateLocalStorageUsage();
+
+        triggerFuturisticToast(
+          'Pemulihan Berhasil 📥',
+          'Data aplikasi berhasil dipulihkan dari cadangan.',
+          'fa-solid fa-file-import text-info'
+        );
+      }
+    } catch (err: any) {
+      Swal.fire('Error Pemulihan', 'Format file JSON cadangan tidak sesuai atau rusak: ' + err.message, 'error');
+    }
+  };
+  reader.readAsText(file);
+};
+
+const sanitizeSafeCache = () => {
+  let clearedCount = 0;
+  const keysToRemove: string[] = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && (key.startsWith('temp_') || key.includes('error_logs') || key.startsWith('cache_'))) {
+      keysToRemove.push(key);
+    }
+  }
+  keysToRemove.forEach(k => {
+    localStorage.removeItem(k);
+    clearedCount++;
+  });
+  errorLogs.value = [];
+  calculateLocalStorageUsage();
+
+  triggerFuturisticToast(
+    'Sanitasi Cache Selesai 🧹',
+    `Ditemukan & dibersihkan ${clearedCount} item cache sementara yang aman.`,
+    'fa-solid fa-broom text-success'
+  );
 };
 
 const saveGradesBulk = async () => {
@@ -2885,6 +3314,39 @@ const saveApiUrl = () => {
   Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'URL API disimpan', showConfirmButton: false, timer: 1800 });
 };
 
+const saveAndTestApiUrlModal = () => {
+  if (isReadOnlyUser.value) return;
+  localStorage.setItem('digitalisasi_api_url', apiUrl.value);
+  triggerFuturisticToast(
+    'URL Web App Disimpan ⚡',
+    'Konfigurasi endpoint Web App Google Apps Script berhasil diperbarui.',
+    'fa-solid fa-circle-check text-success'
+  );
+  const modalEl = document.getElementById('webAppUrlModal');
+  if (modalEl && (window as any).bootstrap) {
+    const modal = (window as any).bootstrap.Modal.getInstance(modalEl);
+    if (modal) modal.hide();
+  }
+};
+
+const saveMadrasahLogoModal = async () => {
+  await saveMadrasahLogo();
+  const modalEl = document.getElementById('madrasahLogoModal');
+  if (modalEl && (window as any).bootstrap) {
+    const modal = (window as any).bootstrap.Modal.getInstance(modalEl);
+    if (modal) modal.hide();
+  }
+};
+
+const clearMadrasahLogoModal = async () => {
+  await clearMadrasahLogo();
+  const modalEl = document.getElementById('madrasahLogoModal');
+  if (modalEl && (window as any).bootstrap) {
+    const modal = (window as any).bootstrap.Modal.getInstance(modalEl);
+    if (modal) modal.hide();
+  }
+};
+
 const testApiConnection = async () => {
   try {
     const res = await fetch(`${apiUrl.value}?action=ping`);
@@ -2918,6 +3380,7 @@ const closeDropdownsOnOutsideClick = () => {
 
 onMounted(() => {
   setTheme(selectedTheme.value);
+  calculateLocalStorageUsage();
   window.addEventListener('click', closeDropdownsOnOutsideClick);
   updateLiveClock();
   clockTimer = setInterval(updateLiveClock, 1000);

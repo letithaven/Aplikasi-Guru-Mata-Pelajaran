@@ -29,12 +29,15 @@ const DB_SCHEMA = {
   Pengaturan: ['key', 'value', 'updated_at']
 };
 
+const SYSTEM_SHEET_ORDER = ['Pengaturan', 'Pengguna', 'Kelas', 'Mapel', 'Siswa', 'Presensi', 'Penilaian', 'Jurnal'];
+const BOUNDARY_SHEET_NAME = '--- BATAS TABEL SISTEM ---';
+
 /**
  * Handle HTTP GET Requests
  */
 function doGet(e) {
   try {
-    const action = e && e.parameter ? e.parameter.action : 'ping';
+    const action = (e && e.parameter && e.parameter.action) ? e.parameter.action : 'ping';
     
     if (action === 'ping') {
       return jsonResponse({ success: true, status: 'success', message: 'Backend GAS MAN 2 SBT Aktif', timestamp: new Date() });
@@ -196,6 +199,15 @@ function doPost(e) {
       return jsonResponse(deleteRecord('Jurnal', payload.id || postData.id));
     }
 
+    // Settings / Pengaturan
+    if (action === 'getSettings') {
+      return jsonResponse({ success: true, data: fetchSettings() });
+    }
+
+    if (action === 'saveSetting' || action === 'updateSetting') {
+      return jsonResponse(saveSettingRecord(payload));
+    }
+
     if (action === 'syncAllData') {
       return jsonResponse(syncAllDataFromClient(payload.data || postData.data));
     }
@@ -282,13 +294,51 @@ function initAndRepairSchema() {
     try { ss.deleteSheet(defaultSheet); } catch (e) {}
   }
 
+  // Pengurutan & Penataan Tab dengan Batas Penanda
+  organizeSheetTabs();
+
   return {
     success: true,
     status: 'success',
-    message: 'Struktur Database Berhasil Diselaraskan',
+    message: 'Struktur Database & Urutan Tab Berhasil Diselaraskan',
     createdSheets,
     repairedHeaders
   };
+}
+
+/**
+ * Menata Urutan Sheet: Sheet Sistem di Sisi Kiri, Sheet Batas Penanda, Sheet Manual Guru di Sisi Kanan
+ */
+function organizeSheetTabs() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  // 1. Buat / Ambil Sheet Batas Penanda jika belum ada
+  let boundarySheet = ss.getSheetByName(BOUNDARY_SHEET_NAME);
+  if (!boundarySheet) {
+    boundarySheet = ss.insertSheet(BOUNDARY_SHEET_NAME);
+    boundarySheet.getRange('A1:E1').merge();
+    boundarySheet.getRange('A1').setValue('⚠️ TABEL DI SEBELAH KIRI ADALAH TABEL UTAMA APLIKASI. SHEET DI SEBELAH KANAN ADALAH SHEET MANUAL GURU.');
+    boundarySheet.getRange('A1').setFontWeight('bold').setFontColor('#991b1b').setBackground('#fee2e2');
+    try { boundarySheet.setTabColor('#ef4444'); } catch (e) {}
+  }
+
+  // 2. Susun ulang tab sistem di posisi awal (posisi 1..N)
+  let pos = 1;
+  SYSTEM_SHEET_ORDER.forEach(sheetName => {
+    const sheet = ss.getSheetByName(sheetName);
+    if (sheet) {
+      ss.setActiveSheet(sheet);
+      ss.moveActiveSheet(pos);
+      try { sheet.setTabColor('#2563eb'); } catch (e) {}
+      pos++;
+    }
+  });
+
+  // 3. Pindahkan Sheet Batas ke posisi tepat setelah tab sistem
+  ss.setActiveSheet(boundarySheet);
+  ss.moveActiveSheet(pos);
+
+  // Tab non-sistem (sheet buatan manual guru) otomatis berada di posisi pos + 1 ke kanan dan TIDAK AKAN DIGANGGU/DIHAPUS.
 }
 
 /**
@@ -633,6 +683,58 @@ function saveJournal(payload) {
   return { success: true, data: { id: jRecord.id } };
 }
 
+function fetchSettings() {
+  const records = readTableRecords('Pengaturan');
+  return records.map(r => ({
+    key: r.key,
+    value: r.value,
+    updated_at: r.updated_at
+  }));
+}
+
+function saveSettingRecord(payload) {
+  const key = payload.key || payload.id;
+  const value = payload.value !== undefined ? payload.value : '';
+  if (!key) return { success: false, message: 'Key pengaturan wajib diisi' };
+
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName('Pengaturan');
+  if (!sheet) {
+    initAndRepairSchema();
+    sheet = ss.getSheetByName('Pengaturan');
+  }
+
+  const headers = getSheetHeaders(sheet);
+  const keyColIdx = headers.indexOf('key');
+  if (keyColIdx === -1) return { success: false, message: 'Kolom key tidak ditemukan di tabel Pengaturan' };
+
+  const data = sheet.getDataRange().getValues();
+  let targetRow = -1;
+
+  for (let i = 1; i < data.length; i++) {
+    if (String(data[i][keyColIdx]) === String(key)) {
+      targetRow = i + 1;
+      break;
+    }
+  }
+
+  const rec = {
+    key: key,
+    value: value,
+    updated_at: new Date().toISOString()
+  };
+
+  const rowValues = headers.map(col => rec[col] !== undefined && rec[col] !== null ? rec[col] : '');
+
+  if (targetRow > -1) {
+    sheet.getRange(targetRow, 1, 1, headers.length).setValues([rowValues]);
+  } else {
+    sheet.appendRow(rowValues);
+  }
+
+  return { success: true, status: 'success', message: 'Pengaturan ' + key + ' berhasil disimpan di tabel Pengaturan' };
+}
+
 /**
  * Membaca Semua Record dalam bentuk Array of Objects dari Sheet
  */
@@ -854,6 +956,8 @@ function generatePublicReportData(classId, month) {
   const targetClass = classes.find(c => String(c.id) === String(classId)) || {};
   const students = (all.Siswa || []).filter(s => String(s.class_id) === String(classId));
   const attendance = (all.Presensi || []).filter(p => String(p.class_id) === String(classId));
+  const settings = all.Pengaturan || [];
+  const logoSetting = settings.find(s => String(s.key) === 'madrasah_logo');
 
   return {
     success: true,
@@ -861,6 +965,7 @@ function generatePublicReportData(classId, month) {
     report: {
       className: targetClass.nama_kelas || targetClass.name || 'Kelas Tidak Ditemukan',
       schoolName: 'MAN 2 Seram Bagian Timur',
+      madrasahLogo: logoSetting ? logoSetting.value : '',
       monthName: month || 'Keseluruhan',
       students,
       attendance

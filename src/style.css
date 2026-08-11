@@ -225,12 +225,19 @@ body {
   }
 
   .app-sidebar.collapsed .sidebar-brand span,
+  .app-sidebar.collapsed .sidebar-brand .brand-text-wrapper,
+  .app-sidebar.collapsed .brand-text-wrapper,
   .app-sidebar.collapsed .menu-link span,
   .app-sidebar.collapsed .user-info-text,
   .app-sidebar.collapsed .btn-hide-text,
   .app-sidebar.collapsed .sidebar-signature,
   .app-sidebar.collapsed .menu-chevron {
     display: none !important;
+  }
+
+  .app-sidebar.collapsed .sidebar-brand {
+    justify-content: center !important;
+    padding: 1.25rem 0 !important;
   }
 
   .app-sidebar.collapsed .menu-link {
@@ -726,15 +733,42 @@ select option {
 @media (max-width: 991.98px) {
   .app-sidebar {
     transform: translateX(-100%);
-    width: min(var(--sidebar-width), 82vw);
+    width: min(var(--sidebar-width), 85vw);
   }
   .app-sidebar.collapsed {
-    width: min(var(--sidebar-width), 82vw);
+    width: min(var(--sidebar-width), 85vw);
   }
   .app-sidebar.mobile-open {
     transform: translateX(0);
     box-shadow: 10px 0 40px rgba(0, 0, 0, 0.5);
   }
+  /* Preserve full sidebar label readability in mobile drawer mode regardless of collapse state */
+  .app-sidebar .sidebar-brand span,
+  .app-sidebar .menu-link span,
+  .app-sidebar .user-info-text,
+  .app-sidebar .btn-hide-text,
+  .app-sidebar .sidebar-signature,
+  .app-sidebar .menu-chevron,
+  .app-sidebar .brand-text-wrapper {
+    display: inline-block !important;
+  }
+  .app-sidebar .menu-link {
+    justify-content: flex-start !important;
+    padding: 0.75rem 1rem !important;
+  }
+  .app-sidebar .submenu-list {
+    position: static !important;
+    display: flex !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding-left: 0 !important;
+    margin-left: 1.25rem !important;
+  }
+  .app-sidebar .submenu-list .submenu-link span {
+    display: inline-block !important;
+  }
+
   .app-main, .app-main.expanded {
     margin-left: 0 !important;
   }
@@ -751,6 +785,33 @@ select option {
   }
   .content-wrapper {
     padding: 1rem;
+  }
+}
+
+/* Specific Extra-Small Mobile Responsive Layout (< 576px) */
+@media (max-width: 576px) {
+  .app-header {
+    padding: 0.5rem 0.5rem !important;
+    gap: 0.35rem !important;
+  }
+  .app-header .header-clock-pill {
+    padding: 0.25rem 0.5rem !important;
+    font-size: 0.75rem !important;
+  }
+  .app-header .header-clock-pill .clock-date-text,
+  .app-header .header-clock-pill .clock-divider,
+  .app-header .header-clock-pill .clock-date-icon {
+    display: none !important;
+  }
+  .app-header select {
+    font-size: 0.76rem !important;
+    max-width: 115px !important;
+    min-width: 85px !important;
+    padding-left: 0.25rem !important;
+    padding-right: 1.1rem !important;
+  }
+  .app-header .btn-cyber-profile {
+    padding: 0.25rem 0.4rem !important;
   }
 }
 
@@ -1369,6 +1430,36 @@ select option {
 }
 
 [data-theme="emerald"] .btn-cyber-profile span {
+  color: #0f172a !important;
+}
+
+[data-theme="emerald"] .header-clock-pill {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="emerald"] .header-clock-pill .clock-date-text,
+[data-theme="emerald"] .header-clock-pill .clock-time-text {
+  color: #0f172a !important;
+}
+
+[data-theme="emerald"] .header-clock-pill .clock-date-icon,
+[data-theme="emerald"] .header-clock-pill .clock-time-icon {
+  color: #0284c7 !important;
+}
+
+[data-theme="emerald"] .app-header div.bg-dark {
+  background-color: #ffffff !important;
+  border-color: #0284c7 !important;
+}
+
+[data-theme="emerald"] .app-header select {
+  color: #0f172a !important;
+}
+
+[data-theme="emerald"] .app-header select option {
+  background-color: #ffffff !important;
   color: #0f172a !important;
 }
 
