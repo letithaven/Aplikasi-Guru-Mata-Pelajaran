@@ -283,7 +283,7 @@
                       <i class="fa-solid fa-sun me-1"></i> Emerald
                     </button>
                     <button type="button" class="btn btn-xs flex-fill text-nowrap rounded" :class="selectedTheme === 'midnight' ? 'btn-warning text-dark fw-bold' : 'btn-outline-secondary'" style="font-size: 0.72rem; padding: 4px 6px;" @click="setTheme('midnight')">
-                      <i class="fa-solid fa-sparkles me-1"></i> Midnight
+                      <i class="fa-solid fa-star me-1"></i> Midnight
                     </button>
                   </div>
                 </li>
